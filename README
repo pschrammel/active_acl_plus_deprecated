@@ -1,0 +1,254 @@
+=Active Access Control Lists (ActiveAcl)
+The ActiveAcl plugin implements a flexible, fast and easy to use generic access control system.
+
+==License
+ActiveAcl is released under the LGPL[http://www.opensource.org/licenses/lgpl-license.php] (Gnu Lesser General Public License) - see the included LICENSE file, too.
+
+==New in 0.2
+* API CHANGE! Renamed the Permission model to Privilege, to stick to common acl language and avoid confusion in the docs. This also means a schema change (simple column and table renaming should do it). has_permission?() is now has_privilege?().
+* added migrations to the plugin
+* look to limitations section for current issues
+* tests completely refactored and moved out of the main distribution
+* several bugfixes
+
+==Features
+* ease of use - uses polymorphic collections for associations.
+* advanced design - uses SQL nested sets for inheritance, thus only needs a single DB query to decide on a permission request.
+* scalable - there are no real benchmarks yet. But the system design is based on http://phpgacl.sourceforge.net, adding object orientation, polymorphism and two levels of caching. PhpGacl claims "A real-world working version with many added layers of complexity supports over 60,000 Accounts, 200 Groups and 300 ACO's." Tests on my dev notebook show 10 - 30 times performance improvements compared to active_rbac.
+* caching - uses instance caching and optionally stores permission results in memcached using timeouts.
+* flexible - grants simple (2D, like <code>current_user.has_permission?(User::LOGIN)</code>) and object level (3D, like <code>admin.has_permission?(Forum::ADMIN, :on => team_forum)</code>) permissions. Can assign and request permissions to and from every ActiveRecord model. No "hardcoded" permissions - all permissions can be assigned at runtime.
+* grouping - permissions are inherited at target and requester side through groups. Every model implementing an SQL nested set tree may be used as a group.
+* ControllerAction model loader: It maps controller actions to the DB so they can be used in permission assignment. The access object is available via calling <code>current_action</code> on the controller.
+* exchangeable DB interface: ActiveRecord and direct MySQL adapter available
+* supports namespaced models and single table inheritance (STI)
+* 100 % C0 code coverage on unit tests
+
+==Limitations
+* At present only one grouping type per model is supported. This could be changed on request but I don't see a use case for it yet.
+* The DBMS has to support subselects. So PostgreSQL, Sqllite and MySQL 5 work, but MySQL 4 does not.
+* At present plugin_migrations and loaded_plugins - which are dependencies for active_acl - need edge rails to run. Obrie told me he would release a 1.1.6 version soon. ActiveAcl core is 1.1.6 compatible, but I felt migration support is critical so I decided to add it now.
+
+
+==Prerequisites/Installation
+ActiveAcl uses the has_many_polymorphs[http://www.agilewebdevelopment.com/plugins/restful_authentication] plugin. Make shure you've got a recent version, old versions have bugs affecting active_acl. 
+
+Also required are plugin_migrations and loaded_plugins from <a href="http://pluginaweek.org/" target="_blank">http://pluginaweek.org</a>. Look at their website for installation instructions.
+
+You can either download a tar.gz file of active_acl at http://rubyforge.org/projects/activeacl/ or use the subversion repository at svn://rubyforge.org/var/svn/activeacl/trunk for the development version or svn://rubyforge.org/var/svn/activeacl/tags/release-X.X.X for a particular release.
+
+In case you used svn from rubyforge, rename the plugin folder from activeacl to active_acl - rubyforge doesn't allow underscores in project names.
+
+To set up the needed tables, execute rake db:migrate:plugins PLUGIN=active_acl. You can set the table names by setting the table name in the options array before executing the task.
+
+
+==Short summary
+The ActiveAcl system consists of access objects, organized by access groups, that request privileges on each other. Allowing or denying access to a privilege is controlled by ACL (access control list entry) objects. Access objects and access groups can be instances of arbitrary ActiveRecord model classes enhanced by acts_as_access_object and acts_as_access_group. They are associated to ACL entries via polymorphic associations.
+
+===Access objects
+These are basically requesters and targets in the permission system, as for example a User or a Forum model object. In this case a user could act as a requester ("do I have privilege Y?") or target ("does access object X have privilege Y on me?"). A Forum would most certainly be only used as a target, but all access objects can theoretically be used as both requesters and targets. Access objects use the acts_as_access_object macro inside their definition. This registers the model with the ACL system and enhances it with methods like has_privilege?.
+
+Every model class must specify an association that is used as the "grouping type" to it. So User may declare has_and_belongs_to_many :user_groups and use acts_as_access_object :grouped_by => :user_groups. You can use a has_and_belongs_to_many or a belongs_to association for this. Common mapping attributes (:join_table, :foreign_key etc.) are supported.
+
+
+===Access groups
+The access group model needs to implement a tree with nested set semantics having a "left" and "right" column, e.g. by using the built-in acts_as_nested_set or the much more recommended acts_as_betted_nested_set plugin. Groups are declared with acts_as_access_group. 
+
+Groups may be used to specify inheritance hierarchies for permissions. So you could have a 'registered users' group as a subgroup of the 'users' group and assign the privilege to log in to this group via an ACL entry. Every user belonging to this group will now be granted the privilege to log in. Then you could add a subgroup to registerd users, 'banned users', and deny the log in privilege for this group. Every user added to this group would now be unable to log in, regardless of beeing in 'registered users' or not, as 'banned users' would override the permission settings of 'registered users'.
+
+
+===Privileges
+A privilege object is an object for the thing we wish to define a permission for. So User::LOGIN could be a privilege object for checking a users permission to log in, while Forum::ADMIN might define administration rights on a forum.
+
+A privilege object itself is little more than it’s name and id and is usually bound to a constant inside the application, as it is not expected to change at runtime. Privileges are usually created by the developer in the source code and not in the admin frontend, as creating new privilege objects that have no meaning (by code that checks for them) would be pointless.
+
+
+===Access Control List (ACL) entries
+ACL entries are the glue between all these objects, defining which requesters and requester groups have access to which privileges, optionally defining target objects and target groups as well. ACL entries are organized by ACL sections, for better overview in the admin screens. 
+
+
+==Usage
+===In short
+"No access defined" for a privilege evaluates to "deny". This may be overriden by an explicit "allow" or "deny". Privileges are inherited in requestor and target groups, this means you can override them in subgroups again. Privileges directly assigned to an object always supercede those assigned to groups. 
+
+===Simple (2D) permissions
+We want all registered users to be able to log in. We create the User model, the UserGroup model and the User::LOGIN privilege object as described above. Then we create a new ACL entry, set 'allow' to true, add the "registered users" group as requester group, User::LOGIN as privilege and we are done. Every user assigned to "registered users" or a subgroup of it will now be granted access by calling <code>my_user.has_privilege?(User::LOGIN)</code>. 
+
+====Simple permissions example
+
+  class UserGroup < ActiveRecord::Base
+    acts_as_nested_set
+    acts_as_access_group
+    has_and_belongs_to_many :users
+  end
+
+  class User < ActiveRecord::Base
+    has_and_belongs_to_many :user_groups
+    acts_as_access_object :grouped_by => :user_groups
+    privilege_const_set('LOGIN')
+  end
+
+  # assume 'registered_users' exists and users 'john' and 'dr_evil' are members of it but 'anonymous' is not. 
+  registered_users = UserGroup.find_by_name('registered_users')
+
+  acl = ActiveAcl::Acl.create :section => ActiveAcl::AclSection.create(:description => 'users')
+
+  acl.allow = true # true is default
+  acl.privileges << User::LOGIN
+  acl.requester_groups << registered_users
+
+  acl.save
+
+  john.has_privilege?(User::LOGIN) #=> true
+  dr_evil.has_privilege?(User::LOGIN) #=> true
+
+  anonymous.has_privilege?(User::LOGIN) #=> false
+
+===Overriding permissions
+We want to ban specific users from our site. We create another ACL entry, assign the User::LOGIN privilege object, set 'allow' to false and then assign these users as requesters to the ACL entry. The direct permission assignment on the objects overrides the 'allow login' ACL entry from above.
+
+====Overriding permissions example
+
+  ban_users = ActiveAcl::Acl.create :section => ActiveAcl::AclSection.find_by_description('users')
+
+  ban_users.allow = false
+  ban_users.privileges << User::LOGIN
+  ban_users.requesters << dr_evil
+
+  ban_users.save
+
+  john.has_privilege?(User::LOGIN) #=> true
+  dr_evil.has_privilege?(User::LOGIN) #=> false
+
+===Object level (3D) permissions
+We want to assign forum permissions. We have several privileges (Forum::ADMIN, Forum::READ, Forum::POST etc.), the afore mentioned User and UserGroup models as well as a Forum and a Category model for grouping the forums. 
+
+If we want to check if a certain user may read in a certain forum, it is not sufficient to check <code>test_user.has_privilege?(Forum::READ)</code> as the target object - in this case a forum - is needed to make a decision. The code to do the check is like <code>test_user.has_privilege?(Forum::READ, :on => teamforum)</code>. 
+
+To make this work you create a new ACL entry, add Forum::POST and Forum::READ as privileges, set 'allow' to true, add the registered users group as a requester group and the public forums category as a target group to the acl. Now every user belonging to the registered users group or a subgroup of it gains post and read privileges on all forums of the public forums category or a subcategory of it. 
+
+====Object level permissions example
+
+  # Assuming setup as in the above examples
+
+  class Category < ActiveRecord::Base
+    acts_as_nested_set
+    acts_as_access_group
+    has_many :forums
+  end
+
+  class Forum < ActiveRecord::Base
+    belongs_to :category
+    acts_as_access_object :grouped_by => :category
+    privilege_const_set 'READ' => 'read postings in forum', 
+                         'POST' => 'reply to threads in a forum'
+  end
+
+  # assume there is a forum 'speakers corner' assigned to the category 'public'.
+
+  acl = ActiveAcl::Acl.create :section => ActiveAcl::AclSection.create(:description => 'forum')
+
+  acl.allow = true
+  acl.requester_groups << registered_users
+  acl.target_groups << Category.find_by_name('public')
+
+  acl.privileges << Forum::READ
+  acl.privileges << Forum::POST
+
+  acl.save
+
+  speakers = Forum.find_by_name('speakers corner')
+
+  john.has_privilege?(Forum::READ, :on => speakers) #=> true
+  john.has_privilege?(Forum::POST, :on => speakers) #=> true
+  anonymous.has_privilege?(Forum::READ, :on => speakers) #=> false
+
+==CAUTION
+Do not create ACL entries that are on different branches of the inheritance hierarchy and have allow/deny set differently on the same privilege objects. This way it's impossible to tell which permission should take precedence. At present this is by creation date, later entries superceding older ones, but this is most certainly not what you want. 
+
+Error checking for conflicting ACL entries is high up on the ToDo list.
+
+==Controller Actions
+Defining permissions on controller actions (like "may user x execute AdminController.list ?") is quite a common case but we are facing a problem here: Controller actions have no corresponding DB models so permissions on them can't be easily defined. 
+
+ActiveAcl solves this by adding a ControllerAction and ControllerGroup model. For every public controller method (=action) there is one ControllerAction object in the DB.
+
+On application startup, the plugin loader checks all controller files in app/controllers and loads or creates a ControllerAction object for every action it finds. These objects get cached in a hash in the ActiveAcl module. Every controller now has a method <code>current_action</code> that looks up and returns the access object for the current action, so it can be used for access checks like <code>current_user.has_privilege?(ActiveAcl::ControllerAction::EXECUTE, :on => current_action)</code>.
+
+This works nicely for before_filters with authorization checks. 
+
+A word on the load mechanism: If the action has no corresponding DB entry (it's looked up on method creation by controller and action name) the loader searches for a controller group with the same name as the controller. If it is found, the action is created and assigned to this group. Else the controller group is created as a subgroup to the "unassigned controller actions" group (this name can be changed in the options) and the unassigned action is added to the controller group.
+
+So you are free on how to organize your controllers. Maybe create an admin group and a public group and move controllers as a subgroup inside them?
+
+==Caching
+The plugin provides two levels of caching. The instance cache is a hash inside the access object. The object first tries to serve a permission request from the instance cache. If it is not found and a simple permission is requested, the query fetches all simple permissions of the object and puts them in the instance cache. The reason for this is that there is no noticable speed penalty in fetching all 2D permissions at once compared to fetching only one, so this will save time and DB IO later on. Complex 3D queries are fetched independently and also saved to the instance cache. The instance cache lives inside the access object, so it has it's lifetime, too - which in rails usually is no more than a single request.
+
+The second level cache tries to overcome this limitation by putting the instance cache of an access object in an external cache. It tries to get the instance cache from there if it is not set, and sets it if it was changed. The only real implementation for now is with the memcache daemon. The second level cache uses a timeout (which can be defined in the options) to expire the cached permissions. 
+
+Instance and second level cache can be expired explicitly by calling <code>clear_cached_permissions</code> on the access object. Calling <code>reload</code> on the object also purges the caches.
+
+See ActiveAcl::Cache::MemcacheAdapter on how to set it up.
+
+
+==Preloader
+The plugin includes a <code>load_files_from filenames</code> function. It can be used to preload source files (and therefore the classes in it) from an application path and should be used from environment.rb.
+
+  load_files_from("#{RAILS_ROOT}/app/controllers/**/[^.]*.rb")
+  load_files_from("#{RAILS_ROOT}/app/models/**/[^.]*.rb")
+
+will load all models and controllers inside these folders and their subfolders. This way you can be shure they are registered with the ACL system at rails boot time - else they will be registered when they are called for the first time. This means that new controllers will not show up in the admin screens until they were accessed if not using the preloader.
+
+==Options
+<code>ActiveAcl::OPTIONS</code> is an array that can be used to override various options for the system by setting the values in environment.rb. <code>ActiveAcl::DEFAULT_OPTIONS</code> is as follows:
+
+  DEFAULT_OPTIONS = {
+    :acl_sections_table => 'acl_sections',
+    :acls_privileges_table => 'acls_privileges',
+    :acls_table => 'acls',
+    :privileges_table => 'privileges',
+    :requester_links_table => 'requester_links',
+    :target_links_table => 'target_links',
+    :requester_group_links_table => 'requester_group_links',
+    :target_group_links_table => 'target_group_links', 
+    :controller_actions_table => 'controller_actions',
+    :controller_groups_table => 'controller_groups',
+  
+    :controllers_group_name => 'unassigned_controller_actions', # the name of the base group that newly created controller groups get assigned to
+    :controller_group_name_suffix => '_controller', # name suffix for generated controller groups
+  
+    :cache_permission_timeout => 10, # timeout in seconds for the second level cache
+  
+    :db => ActiveAcl::DB::ActiveRecordAdapter, # the DB Adapter to use
+    :cache => ActiveAcl::Cache::NoCacheAdapter, # the Cache Adapter to use
+  }
+
+==Tests
+* The tests were moved out of the main distribution as they include a custom rails root with external references and are not needed by most people anyway. Also the tests break the 'rake test:plugins' command, since all tests from the fake rails root plugins would be run also. 
+
+If you want to execute the tests, go to the active_acl plugin directory. Then check out svn://rubyforge.org/var/svn/activeacl/tests/trunk - or whatever your main branch is instead of trunk - to the test directory.
+
+  svn co svn://rubyforge.org/var/svn/activeacl/tests/trunk test
+
+You can test different environments by setting RAILS_ENV before. Look to database.example for possible setups and copy it to database.yml for changes. Then use 'rake test' from inside the plugin directory. Using 'rake test:plugins PLUGIN=active_acl' from the root of your application will NOT work! 
+
+If you have questions about the setup for my tests, take a look at
+
+  http://www.pluginaweek.org/2006/11/24/plugin-tip-of-the-week-testing-your-plugins-the-right-way
+
+==Credits
+* Evan for writing that great polymorph plugin and beeing so kind to add namespace and tablename support on my request. 
+* ReinH and markmeves for great support and suggestions at the rubyonrails channel on freenode.org.
+* http://phpgacl.sourceforge.net as a great source of inspiration
+* Obrie for writing plugin_migrations and loaded_plugins and also very nice support when I got stuck with using them.
+
+==ToDo
+
+in no particular order, just a reminder...
+
+* filtered result sets, implementing <code>MyTarget.find(:all, :privilege => my_privilege, :on => my_requester)</code>. This should return all targets of a special type that the requester has a certain privilege on and avoids having n permission queries for n objects in the result set.
+* direct PostgreSQL interface
+* example on how to integrate with acts_as_authenticated
+* example on controller actions
+* make grouping optional
+* add interface generators (partially done)
+* error checking for conflicting ACL entries
