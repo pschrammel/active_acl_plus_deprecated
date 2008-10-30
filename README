@@ -4,6 +4,11 @@ The ActiveAcl plugin implements a flexible, fast and easy to use generic access 
 ==License
 ActiveAcl is released under the LGPL[http://www.opensource.org/licenses/lgpl-license.php] (Gnu Lesser General Public License) - see the included LICENSE file, too.
 
+==New in 0.3
+* New repository on github
+* No dependency on plugin_migrations
+* Works with Rails 2.1
+
 ==New in 0.2
 * API CHANGE! Renamed the Permission model to Privilege, to stick to common acl language and avoid confusion in the docs. This also means a schema change (simple column and table renaming should do it). has_permission?() is now has_privilege?().
 * added migrations to the plugin
@@ -31,15 +36,11 @@ ActiveAcl is released under the LGPL[http://www.opensource.org/licenses/lgpl-lic
 
 ==Prerequisites/Installation
 ActiveAcl uses the has_many_polymorphs[http://www.agilewebdevelopment.com/plugins/restful_authentication] plugin. Make shure you've got a recent version, old versions have bugs affecting active_acl. 
+!!Be sure you have the paches for 2.1, see: http://rubyforge.org/forum/forum.php?thread_id=26041&forum_id=16450
 
-Also required are plugin_migrations and loaded_plugins from <a href="http://pluginaweek.org/" target="_blank">http://pluginaweek.org</a>. Look at their website for installation instructions.
+./script/plugin instal git:XXX
 
-You can either download a tar.gz file of active_acl at http://rubyforge.org/projects/activeacl/ or use the subversion repository at svn://rubyforge.org/var/svn/activeacl/trunk for the development version or svn://rubyforge.org/var/svn/activeacl/tags/release-X.X.X for a particular release.
-
-In case you used svn from rubyforge, rename the plugin folder from activeacl to active_acl - rubyforge doesn't allow underscores in project names.
-
-To set up the needed tables, execute rake db:migrate:plugins PLUGIN=active_acl. You can set the table names by setting the table name in the options array before executing the task.
-
+generators XXX
 
 ==Short summary
 The ActiveAcl system consists of access objects, organized by access groups, that request privileges on each other. Allowing or denying access to a privilege is controlled by ACL (access control list entry) objects. Access objects and access groups can be instances of arbitrary ActiveRecord model classes enhanced by acts_as_access_object and acts_as_access_group. They are associated to ACL entries via polymorphic associations.
@@ -227,13 +228,13 @@ will load all models and controllers inside these folders and their subfolders. 
 
 If you want to execute the tests, go to the active_acl plugin directory. Then check out svn://rubyforge.org/var/svn/activeacl/tests/trunk - or whatever your main branch is instead of trunk - to the test directory.
 
-  svn co svn://rubyforge.org/var/svn/activeacl/tests/trunk test
+XXXX git
 
 You can test different environments by setting RAILS_ENV before. Look to database.example for possible setups and copy it to database.yml for changes. Then use 'rake test' from inside the plugin directory. Using 'rake test:plugins PLUGIN=active_acl' from the root of your application will NOT work! 
 
 If you have questions about the setup for my tests, take a look at
 
-  http://www.pluginaweek.org/2006/11/24/plugin-tip-of-the-week-testing-your-plugins-the-right-way
+http://www.pathf.com/blogs/2008/09/tips-for-testing-plugins/
 
 ==Credits
 * Evan for writing that great polymorph plugin and beeing so kind to add namespace and tablename support on my request. 

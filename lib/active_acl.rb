@@ -3,7 +3,6 @@ end
 
 # plugin dependency
 require 'has_many_polymorphs'
-require 'plugin_migrations'
 
 ActiveAcl::CONTROLLERS = {}
 

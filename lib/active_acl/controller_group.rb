@@ -2,9 +2,11 @@
 class ActiveAcl::ControllerGroup < ActiveRecord::Base
   set_table_name ActiveAcl::OPTIONS[:controller_groups_table]
   acts_as_nested_set
-  has_many :controller_actions
+  has_many :controller_actions,:class_name => 'ActiveAcl::ControllerAction'
   acts_as_access_group
- 
+
+   validates_presence_of :description
+   
   # Returns the instance representation in the admin screens. 
   def active_acl_description
     return description
@@ -15,5 +17,5 @@ class ActiveAcl::ControllerGroup < ActiveRecord::Base
     return 'ControllerGroup'
   end
   
-  validates_presence_of 'description'
+
 end

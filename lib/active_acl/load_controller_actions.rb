@@ -1,6 +1,5 @@
-require 'rubygems'
-require 'active_support'
-require 'action_view'
+#require 'active_support'
+#require 'action_view'
 
 class ActionController::Base
   # Get the access object for the current action.
@@ -39,7 +38,7 @@ class ActionController::Base
            
               unless main_group
                 # create main group
-                base_group = ActiveAcl::ControllerGroup.find_by_lft(1)
+                base_group = ActiveAcl::ControllerGroup.root
                 main_group = ActiveAcl::ControllerGroup.create(:description => ActiveAcl::OPTIONS[:controllers_group_name])
                 # check if better_nested_set functionality is available
                 if main_group.respond_to?(:move_to_child_of)
@@ -72,7 +71,7 @@ class ActionController::Base
           # return target  
           return target
         rescue Exception => e
-          RAILS_DEFAULT_LOGGER.error("error loading target actions in controller #{self.name}: #{e.message}")
+          Rails.logger.error("error loading target actions in controller #{self.name}: #{e.message}")
         end        
       end # unless target constant found
     end # if method is a action

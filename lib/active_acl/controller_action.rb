@@ -4,8 +4,9 @@ class ActiveAcl::ControllerAction < ActiveRecord::Base
   set_table_name ActiveAcl::OPTIONS[:controller_actions_table]
   privilege_const_set('EXECUTE')
     
-  belongs_to :controller_group
+  belongs_to :controller_group, :class_name => 'ActiveAcl::ControllerGroup'
   acts_as_access_object :grouped_by => :"active_acl/controller_group"
+  validates_presence_of :action, :controller, :controller_group
   
   # Returns the instance representation in the admin screens.
   def active_acl_description
@@ -25,5 +26,5 @@ class ActiveAcl::ControllerAction < ActiveRecord::Base
     return 'Action'
   end
   
-  validates_presence_of :action, :controller, :controller_group
+
 end

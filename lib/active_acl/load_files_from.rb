@@ -11,10 +11,10 @@ class ::Object
       begin
         # load file_name    
         load(file_name)
-        RAILS_DEFAULT_LOGGER.info "#{file_name} loaded"
+        Rails.logger.info "#{file_name} loaded"
       rescue Exception => e
-        RAILS_DEFAULT_LOGGER.warn("error loading file #{file_name}: #{e.message}")
-        RAILS_DEFAULT_LOGGER.warn(e.backtrace)
+        Rails.logger.warn("error loading file #{file_name}: #{e.message}")
+        Rails.logger.warn(e.backtrace)
       end  
     end
   end
