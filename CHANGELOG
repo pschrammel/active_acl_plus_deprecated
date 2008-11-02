@@ -1,5 +1,11 @@
 ActiveAcl rails authorization system
 
+Version 0.3.0 - WIP
+- code cleanup
+- new repository on github with new maintainer
+- no dependency on plugin_migrations
+- runs with Rails 2.1
+
 Version 0.2.1 - December 2nd, 2006
 - fixed bug in polymorph creation
 - test suite uses sqlite3 as a default
