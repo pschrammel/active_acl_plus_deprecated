@@ -1,5 +1,5 @@
-=Active Access Control Lists (ActiveAcl)
-The ActiveAcl plugin implements a flexible, fast and easy to use generic access control system.
+=Active Access Control Lists Plus (ActiveAclPlus)
+The ActiveAclPlus plugin implements a flexible, fast and easy to use generic access control system.
 
 ==License
 ActiveAcl is released under the LGPL[http://www.opensource.org/licenses/lgpl-license.php] (Gnu Lesser General Public License) - see the included LICENSE file, too.
@@ -232,3 +232,4 @@ in no particular order, just a reminder...
 * make grouping optional
 * add interface generators (partially done)
 * error checking for conflicting ACL entries
+* permissions should have more attributes (like :until,:left_boni,...)
