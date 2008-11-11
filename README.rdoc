@@ -2,7 +2,7 @@
 The ActiveAclPlus plugin implements a flexible, fast and easy to use generic access control system.
 
 ==License
-ActiveAcl is released under the LGPL[http://www.opensource.org/licenses/lgpl-license.php] (Gnu Lesser General Public License) - see the included LICENSE file, too.
+ActiveAclPlus is released under the LGPL[http://www.opensource.org/licenses/lgpl-license.php] (Gnu Lesser General Public License) - see the included LICENSE file, too.
 
 ==Features
 * ease of use - uses polymorphic collections for associations.
@@ -19,19 +19,18 @@ ActiveAcl is released under the LGPL[http://www.opensource.org/licenses/lgpl-lic
 ==Limitations
 * At present only one grouping type per model is supported. This could be changed on request but I don't see a use case for it yet.
 * The DBMS has to support subselects. So PostgreSQL, Sqllite and MySQL 5 work, but MySQL 4 does not.
-* At present plugin_migrations and loaded_plugins - which are dependencies for active_acl - need edge rails to run. Obrie told me he would release a 1.1.6 version soon. ActiveAcl core is 1.1.6 compatible, but I felt migration support is critical so I decided to add it now.
 
 
 ==Prerequisites/Installation
-ActiveAcl uses the has_many_polymorphs[http://www.agilewebdevelopment.com/plugins/restful_authentication] plugin. Make shure you've got a recent version, old versions have bugs affecting active_acl. 
+ActiveAclPlus uses the has_many_polymorphs[http://www.agilewebdevelopment.com/plugins/restful_authentication] plugin. Make shure you've got a recent version, old versions have bugs affecting active_acl_plus. 
 !!Be sure you have the paches for 2.1, see: http://rubyforge.org/forum/forum.php?thread_id=26041&forum_id=16450
 
-./script/plugin install git://github.com/popel/active_acl.git
+./script/plugin install git://github.com/popel/active_acl_plus.git
 
 generators XXX
 
 ==Short summary
-The ActiveAcl system consists of access objects, organized by access groups, that request privileges on each other. Allowing or denying access to a privilege is controlled by ACL (access control list entry) objects. Access objects and access groups can be instances of arbitrary ActiveRecord model classes enhanced by acts_as_access_object and acts_as_access_group. They are associated to ACL entries via polymorphic associations.
+The ActiveAclPlus system consists of access objects, organized by access groups, that request privileges on each other. Allowing or denying access to a privilege is controlled by ACL (access control list entry) objects. Access objects and access groups can be instances of arbitrary ActiveRecord model classes enhanced by acts_as_access_object and acts_as_access_group. They are associated to ACL entries via polymorphic associations.
 
 ===Access objects
 These are basically requesters and targets in the permission system, as for example a User or a Forum model object. In this case a user could act as a requester ("do I have privilege Y?") or target ("does access object X have privilege Y on me?"). A Forum would most certainly be only used as a target, but all access objects can theoretically be used as both requesters and targets. Access objects use the acts_as_access_object macro inside their definition. This registers the model with the ACL system and enhances it with methods like has_privilege?.
@@ -159,9 +158,9 @@ Error checking for conflicting ACL entries is high up on the ToDo list.
 ==Controller Actions
 Defining permissions on controller actions (like "may user x execute AdminController.list ?") is quite a common case but we are facing a problem here: Controller actions have no corresponding DB models so permissions on them can't be easily defined. 
 
-ActiveAcl solves this by adding a ControllerAction and ControllerGroup model. For every public controller method (=action) there is one ControllerAction object in the DB.
+ActiveAclPlus solves this by adding a ControllerAction and ControllerGroup model. For every public controller method (=action) there is one ControllerAction object in the DB.
 
-On application startup, the plugin loader checks all controller files in app/controllers and loads or creates a ControllerAction object for every action it finds. These objects get cached in a hash in the ActiveAcl module. Every controller now has a method <code>current_action</code> that looks up and returns the access object for the current action, so it can be used for access checks like <code>current_user.has_privilege?(ActiveAcl::ControllerAction::EXECUTE, :on => current_action)</code>.
+On application startup, the plugin loader checks all controller files in app/controllers and loads or creates a ControllerAction object for every action it finds. These objects get cached in a hash in the ActiveAclPlus module. Every controller now has a method <code>current_action</code> that looks up and returns the access object for the current action, so it can be used for access checks like <code>current_user.has_privilege?(ActiveAcl::ControllerAction::EXECUTE, :on => current_action)</code>.
 
 This works nicely for before_filters with authorization checks. 
 
@@ -212,7 +211,7 @@ will load all models and controllers inside these folders and their subfolders. 
   }
 
 ==Tests
-See: http://github.com/popel/active_acl_test/tree/master for more info.
+See: http://github.com/popel/active_acl_plus_test/tree/master for more info.
 
 ==Credits
 * Gregor Melhorn implemented this and maintained it up to Version 0.2.1. Thanks for releasing this!
