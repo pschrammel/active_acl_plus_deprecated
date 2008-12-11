@@ -16,10 +16,14 @@ class ActiveAclGenerator < Rails::Generator::Base
       m.directory File.join('app', 'views')
       m.directory privileges_view_dir
 
-      m.template 'controllers/privileges_controller.rb', File.join(RAILS_ROOT, 'app', 'controllers', "#{privileges_file_name}.rb")
+      m.template 'controllers/privileges_controller.rb', File.join('app', 'controllers', "#{privileges_file_name}.rb")
       m.file 'views/privileges/_privilege_form.rhtml', File.join(privileges_view_dir, '_privilege_form.rhtml')      
       m.file 'views/privileges/edit.rhtml', File.join(privileges_view_dir, 'edit.rhtml')      
       m.file 'views/privileges/list.rhtml', File.join(privileges_view_dir, 'list.rhtml')      
+      m.migration_template('../../../db/migrate/001_base_table_setup.rb',
+        'db/migrate',
+        :assigns => {:migration_name => "BaseTableSetup"},
+        :migration_file_name => "base_table_setup")
     end
   end
 end

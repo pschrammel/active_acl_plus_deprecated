@@ -82,9 +82,10 @@ We want all registered users to be able to log in. We create the User model, the
 
   acl.allow = true # true is default
   acl.privileges << User::LOGIN
-  acl.requester_groups << registered_users
-
+  acl.note="login"
   acl.save
+
+  acl.requester_groups << registered_users
 
   john.has_privilege?(User::LOGIN) #=> true
   dr_evil.has_privilege?(User::LOGIN) #=> true
@@ -220,15 +221,21 @@ See: http://github.com/popel/active_acl_plus_test/tree/master for more info.
 * http://phpgacl.sourceforge.net as a great source of inspiration
 * Obrie for writing plugin_migrations and loaded_plugins and also very nice support when I got stuck with using them.
 
-==ToDo
+==ToDo/Ideas
 
 in no particular order, just a reminder...
 
-* filtered result sets, implementing <code>MyTarget.find(:all, :privilege => my_privilege, :on => my_requester)</code>. This should return all targets of a special type that the requester has a certain privilege on and avoids having n permission queries for n objects in the result set.
 * direct PostgreSQL interface
 * example on how to integrate with acts_as_authenticated
 * example on controller actions
 * make grouping optional
-* add interface generators (partially done)
+* add interface generators (started)
 * error checking for conflicting ACL entries
 * permissions should have more attributes (like :until,:left_boni,...)
+* get all permissions for a requester within a section
+* get all permissions of a requester (with one query)
+* get all permissions of a requester on a target (with one query)
+* get all requester with a given privilege on a target (one query)
+* get all targets on which a requester has a certain privilege (one query)
+
+

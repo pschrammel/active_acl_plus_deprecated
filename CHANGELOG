@@ -1,7 +1,13 @@
 ActiveAcl rails authorization system
 
-Version 0.3.0 - WIP
-- Renamed Project to ActiveACLPlus in preparation of releasing gems
+Version wip
+
+Version 0.3.1 - 2008/12/11
+- forgot active_acl.rb in gem
+- fixed generator
+
+Version 0.3.0 - 2008/12/07
+- Renamed Project to ActiveACLPlus
 - code cleanup
 - new repository on github with new maintainer
 - no dependency on plugin_migrations
