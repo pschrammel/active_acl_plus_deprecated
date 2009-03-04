@@ -15,7 +15,6 @@ ActiveAclPlus is released under the LGPL[http://www.opensource.org/licenses/lgpl
 * ControllerAction model loader: It maps controller actions to the DB so they can be used in permission assignment. The access object is available via calling <code>current_action</code> on the controller.
 * exchangeable DB interface: ActiveRecord and direct MySQL adapter available
 * supports namespaced models and single table inheritance (STI)
-* 100 % C0 code coverage on unit tests
 
 ==Limitations
 * At present only one grouping type per model is supported. This could be changed on request but I don't see a use case for it yet.
@@ -32,6 +31,10 @@ or
 
   sudo gem install activeaclplus
 
+or from a github repository.
+ 
+If you want to use grouped access objects you should install some kind of nested_set plugin
+(awesome_nested_set,better_nested_set,...).
 ==Short summary
 The ActiveAclPlus system consists of access objects, which can be organized by access groups, 
 that request privileges on each other. Allowing or denying access to a privilege is controlled by 
@@ -46,7 +49,11 @@ privilege Y on me?"). A Forum would most certainly be only used as a target, but
 be used as both requesters and targets. Access objects use the acts_as_access_object macro inside their definition.
 This registers the model with the ACL system and enhances it with methods like has_privilege?.
 
-Every model class must specify an association that is used as the "grouping type" to it. So User may declare
+See: ActiveAcl::Acts::AccessObject::ClassMethods, ActiveAcl::Acts::AccessObject::InstanceMethods,
+ActiveAcl::Acts::AccessObject::SingletonMethods, ActiveAcl::Acts::Grant
+
+
+Every access object class can specify an association that is used as the "grouping type" to it. So User may declare
 has_and_belongs_to_many :user_groups and use acts_as_access_object :grouped_by => :user_groups. You can use
  a has_and_belongs_to_many or a belongs_to association for this. Common mapping attributes
  (:join_table, :foreign_key etc.) are supported.
@@ -106,14 +113,19 @@ to "registered users" or a subgroup of it will now be granted access by calling 
   # assume 'registered_users' exists and users 'john' and 'dr_evil' are members of it but 'anonymous' is not. 
   registered_users = UserGroup.find_by_name('registered_users')
 
+the hard way:
   acl = ActiveAcl::Acl.create :section => ActiveAcl::AclSection.create(:description => 'users')
 
   acl.allow = true # true is default
   acl.privileges << User::LOGIN
-  acl.note="login"
+  acl.iname="login"
   acl.save
 
   acl.requester_groups << registered_users
+
+or much easier:
+  
+  registered_users.grant_privilege!(User::LOGIN,:section_name => 'users',:acl_name => 'login')
 
   john.has_privilege?(User::LOGIN) #=> true
   dr_evil.has_privilege?(User::LOGIN) #=> true
@@ -193,8 +205,6 @@ allow/deny set differently on the same privilege objects. This way it's impossib
 permission should take precedence. At present this is by creation date, later entries superceding older
 ones, but this is most certainly not what you want. 
 
-Error checking for conflicting ACL entries is high up on the ToDo list.
-
 ==Controller Actions
 Defining permissions on controller actions (like "may user x execute AdminController.list ?") is quite a
 common case but we are facing a problem here: Controller actions have no corresponding DB models so
@@ -223,7 +233,7 @@ move controllers as a subgroup inside them?
 ==Caching
 The plugin provides two levels of caching. The instance cache is a hash inside the access object. The object
 first tries to serve a permission request from the instance cache. If it is not found and a simple permission
-is requested, the query fetches all simple permissions of the object and puts them in the instance cache. The
+is requested, the query fetches all simple permissions (2D) of the object and puts them in the instance cache. The
 reason for this is that there is no noticable speed penalty in fetching all 2D permissions at once compared to
 fetching only one, so this will save time and DB IO later on. Complex 3D queries are fetched independently
 and also saved to the instance cache. The instance cache lives inside the access object, so it has it's
@@ -234,7 +244,7 @@ in an external cache. It tries to get the instance cache from there if it is not
 changed. The only real implementation for now is with the memcache daemon. The second level cache uses a timeout
 (which can be defined in the options) to expire the cached permissions. 
 
-Instance and second level cache can be expired explicitly by calling <code>clear_cached_permissions</code>
+Instance and second level cache can be expired explicitly by calling <code>active_acl_clear_cache!</code>
 on the access object. Calling <code>reload</code> on the object also purges the caches.
 
 See ActiveAcl::Cache::MemcacheAdapter on how to set it up.
@@ -279,7 +289,9 @@ the values in environment.rb. <code>ActiveAcl::DEFAULT_OPTIONS</code> is as foll
   }
 
 ==Tests
-See: http://github.com/popel/active_acl_plus_test/tree/master for more info.
+Not anymore, sorry. I'm using RSpec for testing. A repository
+is/will be setup at http://github.com/popel/active_acl_plus_rspec/tree/master . Check it out and move it to "spec". Run 
+  rake spec
 
 ==Credits
 * Gregor Melhorn implemented this and maintained it up to Version 0.2.1. Thanks for releasing this!
