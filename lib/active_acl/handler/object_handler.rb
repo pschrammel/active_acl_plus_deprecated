@@ -47,12 +47,23 @@ module ActiveAcl #:nodoc:
           sql = ''
           sql << query_r_select
           if target
-            sql << query_t_select
-            sql << " WHERE "
+            t_handler=target.active_acl_handler
+            
+            sql << t_handler.query_t_select
+            sql << "\n WHERE "
             sql << query_r_where_3d
-            sql << query_t_where
+            sql << t_handler.query_t_where
             sql << "\n ORDER BY "
-            sql << order_by_3d
+            
+            #TODO: ordering is a mess (use an array?)
+            order = (grouped? ? order_by_3d : [])
+            if t_handler.grouped? 
+              order << "(CASE WHEN t_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC"
+              order << t_handler.group_handler.order_by(target,true)
+            end
+            order << 'acls.updated_at DESC'
+            sql << order.join(',')
+            
             sql << " LIMIT 1"
             vars['privilege_id'] = privilege.id
             vars['target_id'] = target.id
@@ -82,6 +93,7 @@ module ActiveAcl #:nodoc:
           cache.delete(requester_cache_id(requester))
         end
         
+        attr_reader :query_t_select,:query_t_where
         
         #Things go private from here ----------------
         private
@@ -202,13 +214,18 @@ module ActiveAcl #:nodoc:
           
           
           #@query_r_where_2d << '(t_g_links.acl_id IS NULL)) '
-          @order_by_3d = '(CASE WHEN r_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC,  
-                          (CASE WHEN t_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC'
+          @order_by_3d = []
+          @order_by_3d << "(CASE WHEN r_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC"
+          @order_by_3d << group_handler.order_by(self) if grouped?
+          
+           
+          
           #TODO ordering of groups
-          @order_by_2d = 'privileges.id, (CASE WHEN r_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC , acls.updated_at DESC'
+          @order_by_2d = 'privileges.id,'
+          @order_by_2d << "(CASE WHEN r_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC," if grouped?
+          @order_by_2d << "acls.updated_at DESC"
         end
         
-        attr_reader :query_t_select,:query_t_where
         def target_query
           @query_t_select = " LEFT JOIN #{ActiveAcl::OPTIONS[:target_links_table]} t_links ON t_links.acl_id=acls.id"
           if grouped?

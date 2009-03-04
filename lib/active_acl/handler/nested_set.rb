@@ -23,6 +23,10 @@ module ActiveAcl
           end
           #"r_groups.#{left_column} - r_groups.#{right_column} ASC" 
         end
+        def order_by(object_handler,target=false)
+          target_requester = (target ? 't' : 'r')
+          "#{target_requester}_groups.#{left_column} - #{target_requester}_groups.#{right_column} ASC"
+        end
       end #class
     end
   end
