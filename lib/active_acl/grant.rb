@@ -3,12 +3,12 @@ module ActiveAcl
     module Grant 
       # grant_permission!(Blog::DELETE,
       # :on => blog,
-      # :section => 'blogging'
-      # :iname => 'blogging_of_admins'  
+      # :section_name => 'blogging'
+      # :acl_name => 'blogging_of_admins'  
       def grant_permission!(privilege,options={})
-        section_name = options[:section] || 'generic'
+        section_name = options[:section_name] || 'generic'
         target = options[:on]
-        iname = options[:iname] || "#{privilege.active_acl_description}"
+        iname = options[:acl_name] || "#{privilege.active_acl_description}"
         acl=nil
         ActiveAcl::Acl.transaction do
           section = ActiveAcl::AclSection.find_or_create_by_iname(section_name)
