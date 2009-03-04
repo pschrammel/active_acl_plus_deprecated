@@ -304,7 +304,7 @@ is/will be setup at http://github.com/popel/active_acl_plus_rspec/tree/master . 
 
 in no particular order, just a reminder...
 
-* add materialized_tree_support 
+* add materialized_tree support 
 * use Moneta as key/value store
 * direct PostgreSQL interface
 * example on how to integrate with authentication
