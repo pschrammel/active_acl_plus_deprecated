@@ -2,7 +2,7 @@
 require 'rake'
 
 PKG_NAME='activeaclplus'
-PKG_VERSION= "0.3.1"
+PKG_VERSION= "0.4.0"
 PKG_FILE_NAME	  = "#{PKG_NAME}-#{PKG_VERSION}"
 
 PKG_GEM=Gem::Specification.new do |s|
@@ -16,14 +16,13 @@ PKG_GEM=Gem::Specification.new do |s|
   s.email = ["peter.schrammel@gmx.de"]
   s.platform		= Gem::Platform::RUBY
   s.extra_rdoc_files = []
-  s.files	= FileList["{lib,tasks,generators,db}/**/*"].to_a + %w(init.rb install.rb LICENSE Rakefile README.rdoc CHANGELOG)
+  s.files	= FileList["{lib,tasks,generators,db,app}/**/*"].to_a + %w(init.rb install.rb LICENSE Rakefile README.rdoc CHANGELOG)
   s.has_rdoc = true
   s.homepage = %q{http://activeaclplus.rubyforge.org/}
-  s.rdoc_options = ["--main", "README.rdoc"]
+  s.rdoc_options = [ "--title", "Active Acl Plus", "--main", "README.rdoc"]
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{activeaclplus}
-  s.rubygems_version = %q{0.3.0}
-  s.summary = %q{activeaclplus 0.3.0}
+  s.summary = "A new Version (#{PKG_VERSION}) of ActiveAclPlus is available."
   s.add_dependency	"rails", ">= 2.1.0"
 end
 

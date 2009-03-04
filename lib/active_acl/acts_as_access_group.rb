@@ -7,38 +7,33 @@ module ActiveAcl #:nodoc:
       def self.included(base)    
         base.extend(ClassMethods)
       end
-
+      
       module ClassMethods
-        # Extend self with access group capabilites. See README for details
-        # on usage. Accepts the following options as a hash:
-        # left_column:: name of the left column for nested set functionality, default :lft
-        # right_column:: name of the right column for nested set functionality, default :rgt
-        # Don't use 'left' and 'right' as column names - these are reserved words in most DBMS.
+        # Extend self with access group capabilites.
+        # Options can be: 
+        # type:: is mandatory and is one of the group handler classes 
+        # left_column:: for ActiveAcl::Acts::AccessGroup::NestedSet grouped objects
+        # right_column:: for ActiveAcl::Acts::AccessGroup::NestedSet grouped objects
+        
         def acts_as_access_group(options = {})
-          configuration = {:left_column => :lft, :right_column => :rgt,
-                           :controller => ActiveAcl::OPTIONS[:default_group_selector_controller],
-                           :action => ActiveAcl::OPTIONS[:default_group_selector_action]}
-          configuration.update(options) if options.is_a?(Hash)
-          ActiveAcl::GROUP_CLASSES[self.name] = configuration
+          type=options.delete(:type) || ActiveAcl::Acts::AccessGroup::NestedSet
+          ActiveAcl::GROUP_CLASSES[self.name] = type.new(options)
+
+          include ActiveAcl::Acts::Grant
+          include InstanceMethods
+          extend SingletonMethods                         
           
-          from_classes = ActiveAcl::GROUP_CLASSES.keys.collect do |x| 
-            x.split('::').join('/').underscore.pluralize.to_sym
-          end
-                        
           ActiveAcl::Acl.instance_eval do
-            has_many_polymorphs :requester_groups, {:from => from_classes, 
+            has_many_polymorphs :requester_groups, {:from => ActiveAcl.from_classes, 
               :through => :"active_acl/requester_group_links",
               :rename_individual_collections => true}
-
-            has_many_polymorphs :target_groups, {:from => from_classes, 
+            
+            has_many_polymorphs :target_groups, {:from => ActiveAcl.from_classes, 
               :through => :"active_acl/target_group_links",
               :rename_individual_collections => true}
           end
           
-          include InstanceMethods
-          extend SingletonMethods                         
-          
-         end
+        end
       end
       
       module SingletonMethods

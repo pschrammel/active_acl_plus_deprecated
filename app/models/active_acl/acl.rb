@@ -14,8 +14,8 @@ module ActiveAcl
     has_many :requester_group_links, :dependent => :delete_all,:class_name => 'ActiveAcl::RequesterGroupLink'
     has_many :target_group_links, :dependent => :delete_all,:class_name => 'ActiveAcl::TargetGroupLink'
 
-    validates_uniqueness_of :note
-    validates_presence_of :note
+    validates_uniqueness_of :iname
+    validates_presence_of :iname
     
     def self.reloadable? #:nodoc:
       return false
@@ -23,11 +23,11 @@ module ActiveAcl
     
     # used as instance description in admin screen
     def active_acl_description
-      if note
+      if iname
         if section
-        '/' + section.description + '/' + note
+        '/' + section.description + '/' + iname
         else
-          return note
+          return iname
         end
       else
         return nil

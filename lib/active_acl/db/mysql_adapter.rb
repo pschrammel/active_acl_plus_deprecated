@@ -8,11 +8,11 @@ end
 # Uses the native MySQL connection to do privilege selects. Should be around 20 % faster than
 # ActiveRecord adapter. Sets itself as the DB adapter if the source file is loaded, so requiring it
 # is enough to get it activated.
-class ActiveAcl::DB::MySQLAdapter
+class ActiveAcl::DB::MySQLAdapter #:nodoc:
 
   # Execute sql query against the DB, returning an array of results.
   def self.query(sql)
-    RAILS_DEFAULT_LOGGER.debug 'GACL::DB::EXECUTING QUERY ' + sql if RAILS_DEFAULT_LOGGER.debug?
+    Rails.logger.debug 'GACL::DB::EXECUTING QUERY ' + sql if Rails.logger.debug?
     connection = ActiveRecord::Base.connection.connection
     connection.query_with_result = true
     

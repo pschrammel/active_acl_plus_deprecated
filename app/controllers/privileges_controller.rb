@@ -1,4 +1,4 @@
-class <%= privileges_class_name %> < ApplicationController  
+class PrivilegesController < ApplicationController  
   verify :method => :post, :only => [ :create, :update],
        :redirect_to => { :action => :list }
   

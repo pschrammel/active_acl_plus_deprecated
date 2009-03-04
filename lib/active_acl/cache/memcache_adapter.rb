@@ -8,7 +8,7 @@
 #   ActiveAcl::Cache::MemcacheAdapter.cache = MemCache.new('localhost:11211', :namespace => 'my_namespace')
 #   
 # Detailed instructions on how to set up the server can be found at http://dev.robotcoop.com/Libraries/memcache-client.
-class ActiveAcl::Cache::MemcacheAdapter
+class ActiveAcl::Cache::MemcacheAdapter #:nodoc:
 
   # returns the memcache server
   def self.cache
@@ -23,7 +23,7 @@ class ActiveAcl::Cache::MemcacheAdapter
   # get a value from the cache
   def self.get(key)
     value = @@cache.get(key)
-    RAILS_DEFAULT_LOGGER.debug 'GACL::SECOND_LEVEL_CACHE::' + (value.nil? ? 'MISS ' : 'HIT ')+ key.to_s if RAILS_DEFAULT_LOGGER.debug?
+    Rails.logger.debug 'GACL::SECOND_LEVEL_CACHE::' + (value.nil? ? 'MISS ' : 'HIT ')+ key.to_s
     value
   end
   
@@ -31,13 +31,13 @@ class ActiveAcl::Cache::MemcacheAdapter
   # Set ttl to 0 for unlimited.
   def self.set(key, value, ttl)
     @@cache.set(key, value, ttl)
-    RAILS_DEFAULT_LOGGER.debug 'GACL::SECOND_LEVEL_CACHE::SET ' + key.to_s + ' TO ' + value.to_s + ' TTL ' + ttl.to_s if RAILS_DEFAULT_LOGGER.debug?    
+    Rails.logger.debug 'GACL::SECOND_LEVEL_CACHE::SET ' + key.to_s + ' TO ' + value.inspect.to_s + ' TTL ' + ttl.to_s    
   end
   
   # purge data from cache.
   def self.delete(key)
     @@cache.delete(key)
-    RAILS_DEFAULT_LOGGER.debug 'GACL::SECOND_LEVEL_CACHE::DELETE ' + key.to_s if RAILS_DEFAULT_LOGGER.debug?    
+    Rails.logger.debug 'GACL::SECOND_LEVEL_CACHE::DELETE ' + key.to_s    
   end
 end
 

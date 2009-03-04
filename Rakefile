@@ -18,13 +18,8 @@ Rake::GemPackageTask.new(PKG_GEM) do |p|
   p.need_zip = true
 end
 
-desc 'Default: run unit tests.'
-task :default => :test
-
-#desc "Publish the beta gem"
-#task :pgem => [:package] do
-#  Rake::SshFilePublisher.new("pluginaweek@pluginaweek.org", "/home/pluginaweek/gems.pluginaweek.org/gems", "pkg", "#{PKG_FILE_NAME}.gem").upload
-#end
+desc 'Default: run specs'
+task :default => :spec
 
 desc "Publish the API documentation"
 task :pdoc => [:rdoc] do
@@ -67,11 +62,16 @@ task :coverage_diff do
   sh "#{RCOV} --rails -T -Ilib -x db/**/* --text-coverage-diff ../../../coverage/active_acl/coverage.info --output ../../../coverage/active_acl test/all_tests.rb"
 end
 
-desc 'Test the active_acl_plus plugin.'
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.pattern = 'test/unit/**/*_test.rb'
-  t.verbose = true
+begin #no spec or spec-rails? ok no tasks
+  require 'spec/rake/spectask'
+  
+  desc 'Test the active_acl_plus plugin.'
+  Spec::Rake::SpecTask.new(:spec) do |t|
+    #t.spec_opts = ['--options', "\"#{RAILS_ROOT}/spec/spec.opts\""]
+    t.spec_files = FileList['spec/**/*_spec.rb']
+  end
+rescue LoadError => e
+  puts "No spec tasks! - gem install rspec-rails (#{__FILE__})"
 end
 
 desc 'Generate documentation for the active_acl_plus plugin.'
@@ -79,6 +79,5 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'ActiveAclPlus'
   rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README')
-  rdoc.rdoc_files.include('lib/**/*.rb')
+  rdoc.rdoc_files.include('README.rdoc','lib/**/*.rb','app/**/*.rb')
 end

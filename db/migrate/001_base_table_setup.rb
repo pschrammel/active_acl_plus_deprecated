@@ -2,22 +2,25 @@ class BaseTableSetup < ActiveRecord::Migration
   def self.up
     create_table ActiveAcl::OPTIONS[:acls_table] do |t|
         t.column :section_id,  :int
+        t.column :iname,       :string,:null => false
         t.column :allow,       :boolean, :null => false, :default => true
         t.column :enabled,     :boolean, :null => false, :default => true
-        t.column :note,        :string, :null => true
+        t.column :description, :text, :null => true
         t.column :updated_at,  :datetime, :null => false
     end
     
     add_index ActiveAcl::OPTIONS[:acls_table], :enabled
     add_index ActiveAcl::OPTIONS[:acls_table], :section_id
     add_index ActiveAcl::OPTIONS[:acls_table], :updated_at
-    add_index ActiveAcl::OPTIONS[:acls_table], :note, :unique
+    add_index ActiveAcl::OPTIONS[:acls_table], :iname, :unique
+    
         
     create_table ActiveAcl::OPTIONS[:acl_sections_table] do |t|
-        t.column :description, :string, :limit => 230, :null => false
+        t.column :iname,       :string, :null => false
+        t.column :description, :text, :null => true
     end
     
-    add_index ActiveAcl::OPTIONS[:acl_sections_table], :description, :unique
+    add_index ActiveAcl::OPTIONS[:acl_sections_table], :iname, :unique
         
     create_table ActiveAcl::OPTIONS[:privileges_table] do |t|
         t.column :section,        :string, :limit => 230, :null => false

@@ -1,5 +1,3 @@
-#require 'active_support'
-#require 'action_view'
 
 class ActionController::Base
   # Get the access object for the current action.
@@ -14,7 +12,7 @@ class ActionController::Base
   
   # Overrides method_added, so the needed ActiveAcl::ControllerAction is loaded/created 
   # when the action gets added to the controller. 
-  def self.method_added(action)
+  def self.method_added(action) #:nodoc:
     method_added_before_active_acl_controller_action_loading(action)
     ActiveAcl::CONTROLLERS[self.name] ||= {}
 
