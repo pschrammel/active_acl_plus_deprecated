@@ -1,6 +1,10 @@
 ActiveAcl rails authorization system
 
-Version 0.4.0 - 2008/03/08
+Version 0.4.1 - 2008/03/05
+- removed the view and the controller (should go into an ui package)
+- get rid of rake depndency in gemspec (should build on github now)
+
+Version 0.4.0 - 2008/03/04
 - complete rewrite of the SQL generation
 - abstraction of the grouping
 - added #grant_privilege
