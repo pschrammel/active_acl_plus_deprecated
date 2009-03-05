@@ -1,8 +1,7 @@
 # -*- encoding: utf-8 -*-
-require 'rake'
 
 PKG_NAME='activeaclplus'
-PKG_VERSION= "0.4.0"
+PKG_VERSION= "0.4.1"
 PKG_FILE_NAME	  = "#{PKG_NAME}-#{PKG_VERSION}"
 
 PKG_GEM=Gem::Specification.new do |s|
@@ -18,7 +17,7 @@ PKG_GEM=Gem::Specification.new do |s|
   s.summary  = "A new Version (#{PKG_VERSION}) of ActiveAclPlus is available."
   s.homepage = "http://activeaclplus.rubyforge.org/"
   extra_rdoc_files = ["README.rdoc","LICENSE","CHANGELOG"]
-  s.files	= FileList["{lib,tasks,generators,db,app}/**/*"].to_a + %w(init.rb install.rb Rakefile) + extra_rdoc_files
+  s.files	= Dir.glob("{lib,tasks,generators,db,app}/**/*") + %w(init.rb install.rb Rakefile) + extra_rdoc_files
   s.require_paths = ["lib"]
   
   #RDOC
