@@ -75,7 +75,7 @@ module ActiveAcl #:nodoc:
         # checks if the user has a certain privilege, optionally on the given object.
         # Option :on defines the target object.  
         def has_privilege?(privilege, options = {})
-          target = options[:on] #TODO: add error handling if not a hash
+          target = options[:on] 
           # no need to check anything if privilege is not a Privilege
           raise "first Argument has to be a Privilege" unless privilege.is_a?(Privilege)
           # no need to check anything if target is no Access Object

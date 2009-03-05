@@ -3,6 +3,7 @@ test
 trash
 pkg
 rdoc
+nbproject
 .project
 .loadpath
 .DS_STORE

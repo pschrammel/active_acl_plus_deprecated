@@ -55,7 +55,6 @@ module ActiveAcl #:nodoc:
             sql << t_handler.query_t_where
             sql << "\n ORDER BY "
             
-            #TODO: ordering is a mess (use an array?)
             order = (grouped? ? order_by_3d : [])
             if t_handler.grouped? 
               order << "(CASE WHEN t_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC"
@@ -146,7 +145,7 @@ module ActiveAcl #:nodoc:
               if row['privilege_id'] != last_privilege_value
                 last_privilege_value = row['privilege_id']
                 q_id=query_id(requester,privilege,target)
-                #TODO: put the into the db handler
+                #TODO: put this into the db handler
                 v=((row['allow'] == '1') or (row['allow'] == 't'))
                 instance_cache[q_id] = v
               end
@@ -213,14 +212,10 @@ module ActiveAcl #:nodoc:
           @query_r_where_2d << query
           
           
-          #@query_r_where_2d << '(t_g_links.acl_id IS NULL)) '
           @order_by_3d = []
           @order_by_3d << "(CASE WHEN r_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC"
           @order_by_3d << group_handler.order_by(self) if grouped?
           
-           
-          
-          #TODO ordering of groups
           @order_by_2d = 'privileges.id,'
           @order_by_2d << "(CASE WHEN r_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC," if grouped?
           @order_by_2d << "acls.updated_at DESC"
