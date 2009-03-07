@@ -56,7 +56,7 @@ module ActiveAcl #:nodoc:
             sql << "\n ORDER BY "
             
             #TODO: ordering is a mess (use an array?)
-            order = (grouped? ? order_by_3d : [])
+            order = (grouped? ? order_by_3d.dup : [])
             if t_handler.grouped? 
               order << "(CASE WHEN t_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC"
               order << t_handler.group_handler.order_by(target,true)
@@ -68,6 +68,7 @@ module ActiveAcl #:nodoc:
             vars['privilege_id'] = privilege.id
             vars['target_id'] = target.id
             vars['target_type'] = target.class.base_class.name
+            #vars['target_group_id'] = t_handler. association_foreign_key unless t_handler.habtm?
           else
             sql << " WHERE "
             sql << query_r_where_2d
