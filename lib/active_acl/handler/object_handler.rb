@@ -44,6 +44,7 @@ module ActiveAcl #:nodoc:
           #todo check cash l2
           
           vars={'requester_id' => requester.id}
+          vars['requester_group_id'] = requester.send(association_foreign_key) if !self.habtm? && self.grouped?
           sql = ''
           sql << query_r_select
           if target
@@ -60,6 +61,7 @@ module ActiveAcl #:nodoc:
             if t_handler.grouped? 
               order << "(CASE WHEN t_g_links.acl_id IS NULL THEN 0 ELSE 1 END) ASC"
               order << t_handler.group_handler.order_by(target,true)
+              vars['target_group_id'] = target.send(t_handler.association_foreign_key) unless t_handler.habtm?
             end
             order << 'acls.updated_at DESC'
             sql << order.join(',')
@@ -68,7 +70,6 @@ module ActiveAcl #:nodoc:
             vars['privilege_id'] = privilege.id
             vars['target_id'] = target.id
             vars['target_type'] = target.class.base_class.name
-            #vars['target_group_id'] = t_handler. association_foreign_key unless t_handler.habtm?
           else
             sql << " WHERE "
             sql << query_r_where_2d
