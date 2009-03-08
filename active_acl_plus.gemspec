@@ -2,7 +2,7 @@
 require 'rake'
 
 PKG_NAME='activeaclplus'
-PKG_VERSION= "0.4.0"
+PKG_VERSION= "0.4.2"
 PKG_FILE_NAME	  = "#{PKG_NAME}-#{PKG_VERSION}"
 
 PKG_GEM=Gem::Specification.new do |s|
