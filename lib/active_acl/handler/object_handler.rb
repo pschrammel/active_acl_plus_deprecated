@@ -19,8 +19,8 @@ module ActiveAcl #:nodoc:
           end
           
           #set the SQL fragments
-          requester_query
-          target_query
+          prepare_requester_sql
+          prepare_target_sql
         end
         def habtm?
           @habtm
@@ -184,7 +184,7 @@ module ActiveAcl #:nodoc:
         # We'll build the SQL on demand and cache it so it'll 
         # be a function of: requester,target,privilege 
         attr_reader :query_r_select, :query_r_where_2d, :query_r_where_3d, :order_by_3d,:order_by_2d
-        def requester_query
+        def prepare_requester_sql
           @query_r_select = <<-QUERY
             SELECT acls.id, acls.allow, privileges.id AS privilege_id FROM #{ActiveAcl::OPTIONS[:acls_table]} acls 
             LEFT JOIN #{ActiveAcl::OPTIONS[:acls_privileges_table]} acls_privileges ON acls_privileges.acl_id=acls.id 
@@ -228,7 +228,7 @@ module ActiveAcl #:nodoc:
           @order_by_2d << "acls.updated_at DESC"
         end
         
-        def target_query
+        def prepare_target_sql
           @query_t_select = " LEFT JOIN #{ActiveAcl::OPTIONS[:target_links_table]} t_links ON t_links.acl_id=acls.id"
           if grouped?
             target_groups_table = @group_class_name.constantize.table_name
