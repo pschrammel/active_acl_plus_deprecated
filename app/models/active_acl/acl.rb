@@ -1,6 +1,13 @@
 # This model is the "glue" :-). Every permission assignment uses an Acl 
 # model object, assigns objects, groups and privileges and setting   
 # 'allow' to "true" or "false" to grant or deny access.
+
+# These methods are added by the acts_as_access_object/group:
+# requesters
+# targets
+# requester_groups
+# target_groups
+
 module ActiveAcl
   class Acl < ActiveRecord::Base
     set_table_name ActiveAcl::OPTIONS[:acls_table]

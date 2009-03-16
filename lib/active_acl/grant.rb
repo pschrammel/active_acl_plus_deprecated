@@ -3,30 +3,44 @@ module ActiveAcl
     module Grant 
       # grant_permission!(Blog::DELETE,
       # :on => blog,
-      # :section_name => 'blogging'
-      # :acl_name => 'blogging_of_admins'  
+      # :section => 'blogging' or a Hash or an ActiveAcl::AclSection
+      # :acl => 'blogging_of_admins' or a hash or an ActiveAvl::Acl
+      # :target_as_object => true/false target is treated as access_object         
       def grant_permission!(privilege,options={})
-        section_name = options[:section_name] || 'generic'
+        section = options[:section] || 'generic'
         target = options[:on]
-        iname = options[:acl_name] || "#{privilege.active_acl_description}"
-        acl=nil
+        acl = options[:acl] || "#{privilege.active_acl_description}"
         ActiveAcl::Acl.transaction do
-          section = ActiveAcl::AclSection.find_or_create_by_iname(section_name)
-          section.save! if section.new_record?
-          acl = ActiveAcl::Acl.create :section => section,:iname => iname
-          acl.save!
+          unless acl.kind_of?(ActiveAcl::Acl)
+            case section
+              when String
+              section = ActiveAcl::AclSection.find_or_create_by_iname(section)
+              when Hash
+              section = ActiveAcl::AclSection.create(section)
+              #else section should be an ActiveAcl::AclSection
+            end
+            section.save! if section.new_record?
+          end
+          
+          case acl
+            when String
+            acl=ActiveAcl::Acl.find_or_create_by_iname(acl)
+            when Hash
+            acl=ActiveAcl::Acl.create(acl.merge({:section => section}))
+          end
+          acl.save! if acl.new_record?
           
           acl.privileges << privilege
           if ActiveAcl.is_access_group?(self.class) 
-            acl.requester_groups << self
+            acl.requester_groups << self unless acl.requester_groups.include?(self)
           else
-            acl.requesters << self
+            acl.requesters << self unless acl.requesters.include?(self)
           end
           if target
-            if ActiveAcl.is_access_group?(target.class) 
-              acl.target_groups << target
+            if ActiveAcl.is_access_group?(target.class) && !options[:target_as_object] 
+              acl.target_groups << target unless acl.target_groups.include?(target)
             else
-              acl.targets << target
+              acl.targets << target unless acl.targets.include?(target)
             end 
           end
           active_acl_clear_cache! if ActiveAcl.is_access_object?(self.class)

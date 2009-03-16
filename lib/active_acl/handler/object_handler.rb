@@ -18,6 +18,9 @@ module ActiveAcl #:nodoc:
             @habtm = options[:habtm] || (options[:grouped_by].to_s.demodulize.singularize != options[:grouped_by].to_s.demodulize)
           end
           
+          logger=Rails.logger
+          logger.debug "ActiveAcl: registered ObjectHandler for #{klass}"
+          logger.debug "grouped: #{self.grouped?}, habtm: #{habtm?}"
           #set the SQL fragments
           prepare_requester_sql
           prepare_target_sql
@@ -147,13 +150,13 @@ module ActiveAcl #:nodoc:
             results.each do |row|
               if row['privilege_id'] != last_privilege_value
                 last_privilege_value = row['privilege_id']
-                q_id=query_id(requester,privilege,target)
-                #TODO: put the into the db handler
+                q_id=query_id(requester,last_privilege_value,nil)
+                #TODO: put the true comparison into the db handler
                 v=((row['allow'] == '1') or (row['allow'] == 't'))
                 instance_cache[q_id] = v
               end
             end
-            requester.active_acl_cached_2d! #mark the cache as cached (at least 2d)
+            requester.active_acl_cached_2d! #mark the cache as filled (at least 2d)
             # the result should be in the cache now or we return false 
             value=instance_cache[this_query_id] || false
           else #3d request?
