@@ -49,13 +49,13 @@ module ActiveAcl #:nodoc:
           
           self.module_eval do
             # checks if method is defined to not break tests
-            unless instance_methods.include? "reload_before_gacl"
-              alias :reload_before_gacl :reload
+            unless instance_methods.include? "reload_before_active_acl"
+              alias :reload_before_active_acl :reload
               
               # Redefines reload, making shure privilege caches are cleared on reload
               def reload #:nodoc:
-                clear_cached_permissions
-                reload_before_gacl
+                active_acl_clear_cache!
+                reload_before_active_acl
               end
             end
           end
