@@ -1,9 +1,20 @@
-ActiveAcl rails authorization system
+ActiveAclPlus a rails authorization system (one of many)
+
+Version 0.4.3 (wip)
+- fixed 2d bug
+- renamed grant_permission! to grant_privilege! (whops)
+- fixed some issues with grant_privilege!
+- NOTE: grant_privilege! is wip, so the API may change a lot, sorry!
+- fixing STI
+
+Version 0.4.2
+
+Version 0.4.1
 
 Version 0.4.0 - 2008/03/08
 - complete rewrite of the SQL generation
 - abstraction of the grouping
-- added #grant_privilege
+- added #grant_permission
 - dropped test, moving to rspec
 - allows ungrouped requesters/targets
 - propper namespace handling of options (THANKS http://github.com/garytaylor)

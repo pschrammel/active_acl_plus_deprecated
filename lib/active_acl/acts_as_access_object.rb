@@ -25,7 +25,7 @@ module ActiveAcl #:nodoc:
           
           handler=ObjectHandler.new(self,options) 
           
-          ActiveAcl::ACCESS_CLASSES[self.name] = handler
+          ActiveAcl.register_object(self,handler)
           
           has_many :requester_links, :as => :requester, :dependent => :delete_all, :class_name => 'ActiveAcl::RequesterLink'
           has_many :requester_acls, :through => :requester_links, :source => :acl, :class_name => 'ActiveAcl::Acl'
@@ -46,7 +46,7 @@ module ActiveAcl #:nodoc:
               :through => :"active_acl/target_links", 
               :rename_individual_collections => true}
           end
-          
+          puts ActiveAcl.from_classes.inspect
           self.module_eval do
             # checks if method is defined to not break tests
             unless instance_methods.include? "reload_before_active_acl"
@@ -79,12 +79,12 @@ module ActiveAcl #:nodoc:
           # no need to check anything if privilege is not a Privilege
           raise "first Argument has to be a Privilege" unless privilege.is_a?(Privilege)
           # no need to check anything if target is no Access Object
-          raise "target hast to be an AccessObject" if target and !(target.class.respond_to?(:base_class) and ActiveAcl::ACCESS_CLASSES.has_key?(target.class.base_class.name))
+          raise "target hast to be an AccessObject (#{target.class})" if target and !(target.class.respond_to?(:base_class) && ActiveAcl.is_access_object?(target.class))
           
           active_acl_handler.has_privilege?(self,privilege,target)
         end
         def active_acl_handler
-          ActiveAcl::ACCESS_CLASSES[self.class.name]
+          ActiveAcl.object_handler(self.class)
         end
         #returns a key value store
         def active_acl_instance_cache

@@ -6,11 +6,12 @@ module ActiveAcl #:nodoc:
       # the group is a nested_set
       class ObjectHandler #:nodoc:
         attr_reader :klass,:group_class_name,:join_table,:group_table_name,
-        :foreign_key,:association_foreign_key
+        :foreign_key,:association_foreign_key,:group_handler
         def initialize(klass,options={})
           @klass = klass
           if options[:grouped_by]
             @group_class_name = options[:grouped_by].to_s.classify
+            @group_handler=ActiveAcl.group_handler(@group_class_name.constantize)
             @group_table_name=@group_class_name.constantize.table_name
             @join_table = options[:join_table] || [klass.name.pluralize.underscore.gsub(/\//,'_'), group_class_name.pluralize.underscore.gsub(/\//,'_')].sort.join('_')  
             @foreign_key = options[:foreign_key] || "#{klass.name.demodulize.underscore}_id" 
@@ -34,9 +35,6 @@ module ActiveAcl #:nodoc:
         
         def klass_name 
           klass.base_class.name
-        end
-        def group_handler
-          ActiveAcl::GROUP_CLASSES[@group_class_name]
         end
         
         #checks the privilege of a requester on a target (optional)

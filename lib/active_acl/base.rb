@@ -3,14 +3,26 @@ module ActiveAcl
   GROUP_CLASSES={}
   ACCESS_CLASSES={}
   
+  def self.register_group(klass,handler)
+    GROUP_CLASSES[klass.base_class.name]=handler
+  end
+  def self.register_object(klass,handler)
+    ACCESS_CLASSES[klass.base_class.name]=handler
+  end
+  def self.group_handler(klass)
+    GROUP_CLASSES[klass.base_class.name]
+  end
+  def self.object_handler(klass)
+    ACCESS_CLASSES[klass.base_class.name]
+  end
   def self.is_access_group?(klass)
-    !!ActiveAcl::GROUP_CLASSES[klass.name]
+    !!GROUP_CLASSES[klass.base_class.name]
   end
   def self.is_access_object?(klass)
-    !!ActiveAcl::ACCESS_CLASSES[klass.name]
+    !!ACCESS_CLASSES[klass.base_class.name]
   end
   def self.from_classes 
-    ActiveAcl::ACCESS_CLASSES.keys.collect do |x| 
+    ACCESS_CLASSES.keys.collect do |x| 
       x.split('::').join('/').underscore.pluralize.to_sym
     end
   end

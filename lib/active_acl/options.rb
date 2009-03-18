@@ -3,8 +3,8 @@ module ActiveAcl
     OPTIONS = {} 
   end
   
-  ActiveAcl::ACCESS_CLASSES = {}
-  ActiveAcl::GROUP_CLASSES = {}
+#  ActiveAcl::ACCESS_CLASSES = {}
+#  ActiveAcl::GROUP_CLASSES = {}
   
   DEFAULT_OPTIONS = {
     :acl_sections_table => 'acl_sections',

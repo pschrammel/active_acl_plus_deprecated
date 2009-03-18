@@ -1,12 +1,12 @@
 module ActiveAcl
   module Acts 
     module Grant 
-      # grant_permission!(Blog::DELETE,
+      # grant_privilege!(Blog::DELETE,
       # :on => blog,
       # :section => 'blogging' or a Hash or an ActiveAcl::AclSection
       # :acl => 'blogging_of_admins' or a hash or an ActiveAvl::Acl
       # :target_as_object => true/false target is treated as access_object         
-      def grant_permission!(privilege,options={})
+      def grant_privilege!(privilege,options={})
         section = options[:section] || 'generic'
         target = options[:on]
         acl = options[:acl] || "#{privilege.active_acl_description}"
@@ -25,11 +25,12 @@ module ActiveAcl
           case acl
             when String
             acl=ActiveAcl::Acl.find_or_create_by_iname(acl)
+            acl.section=section unless acl.section
             when Hash
             acl=ActiveAcl::Acl.create(acl.merge({:section => section}))
           end
           acl.save! if acl.new_record?
-          
+           
           acl.privileges << privilege
           if ActiveAcl.is_access_group?(self.class) 
             acl.requester_groups << self unless acl.requester_groups.include?(self)

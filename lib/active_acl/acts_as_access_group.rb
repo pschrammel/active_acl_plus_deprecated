@@ -17,7 +17,7 @@ module ActiveAcl #:nodoc:
         
         def acts_as_access_group(options = {})
           type=options.delete(:type) || ActiveAcl::Acts::AccessGroup::NestedSet
-          ActiveAcl::GROUP_CLASSES[self.name] = type.new(options)
+          ActiveAcl.register_group(self,type.new(options))
 
           include ActiveAcl::Acts::Grant
           include InstanceMethods
