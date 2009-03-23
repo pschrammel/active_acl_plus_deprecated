@@ -9,14 +9,29 @@ RCOV = "rcov"
 
 RUBY_FORGE_PROJECT = "activeaclplus"
 RUBY_FORGE_USER = "popel"
+PKG_NAME="active_acl_plus"
 
-eval(File.read("./active_acl_plus.gemspec"))
 
-Rake::GemPackageTask.new(PKG_GEM) do |p|
-  p.gem_spec = PKG_GEM
-  p.need_tar = true
-  p.need_zip = true
+begin
+  require 'jeweler'
+    Jeweler::Tasks.new do |s|
+      s.name     = 'active_acl_plus'
+      s.authors  = ["Peter Schrammel","Gregor Melhorn"]
+      s.description = %q{A flexible, fast and easy to use generic access control system.}
+      s.email    = ["peter.schrammel@gmx.de"]
+      s.rubyforge_project = RUBY_FORGE_PROJECT
+      s.summary  = "A new Version of ActiveAclPlus is available."
+      s.homepage = "http://activeaclplus.rubyforge.org/"
+#      s.extra_rdoc_files = ["README.rdoc","LICENSE","CHANGELOG"]
+      s.rdoc_options     = [ "--title", "Active Acl Plus", "--main", "README.rdoc"]
+                                  
+#      s.add_dependency      "rails", ">= 2.1.0"
+                                        
+   end
+   rescue LoadError
+   puts "Jeweler not available."
 end
+
 
 desc 'Default: run specs'
 task :default => :spec
@@ -79,5 +94,6 @@ Rake::RDocTask.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'ActiveAclPlus'
   rdoc.options << '--line-numbers' << '--inline-source'
-  rdoc.rdoc_files.include('README.rdoc','lib/**/*.rb','app/**/*.rb')
+  rdoc.rdoc_files.include('CHANGELOG','LICENSE','README.rdoc','lib/**/*.rb','app/**/*.rb')
 end
+

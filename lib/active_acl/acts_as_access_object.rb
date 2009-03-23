@@ -46,7 +46,7 @@ module ActiveAcl #:nodoc:
               :through => :"active_acl/target_links", 
               :rename_individual_collections => true}
           end
-          puts ActiveAcl.from_classes.inspect
+
           self.module_eval do
             # checks if method is defined to not break tests
             unless instance_methods.include? "reload_before_active_acl"

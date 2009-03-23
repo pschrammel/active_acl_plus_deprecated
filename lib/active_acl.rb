@@ -6,6 +6,8 @@ end
 # plugin dependency
 require 'has_many_polymorphs'
 
+require 'active_acl/db/active_record_adapter'
+require 'active_acl/cache/no_cache_adapter'
 require 'active_acl/options'
 require 'active_acl/base'
 
@@ -14,8 +16,6 @@ require 'active_acl/grant'
 
 require 'active_acl/handler/object_handler'
 require 'active_acl/handler/nested_set'
-require 'active_acl/db/active_record_adapter'
-require 'active_acl/cache/no_cache_adapter'
 require 'active_acl/load_controller_actions'
 require 'active_acl/acts_as_access_object'
 require 'active_acl/acts_as_access_group'
