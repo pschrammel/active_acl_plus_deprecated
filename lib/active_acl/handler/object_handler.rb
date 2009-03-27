@@ -79,7 +79,7 @@ module ActiveAcl #:nodoc:
           end
           
           #replacing the vars in the SQL
-          sql=sql.gsub(/%{[^}]+}/) do |var|
+          sql=sql.gsub(/%\{[^\}]+\}/) do |var|
             vars[var[2..-2]] || var
           end
           

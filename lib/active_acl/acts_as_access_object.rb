@@ -38,11 +38,11 @@ module ActiveAcl #:nodoc:
           include ActiveAcl::Acts::Grant
 
           ActiveAcl::Acl.instance_eval do
-            has_many_polymorphs :requesters, {:from => ActiveAcl.from_classes, 
+            has_many_polymorphs :requesters, {:from => ActiveAcl.from_access_classes,
               :through => :"active_acl/requester_links", 
               :rename_individual_collections => true}
             
-            has_many_polymorphs :targets, {:from => ActiveAcl.from_classes, 
+            has_many_polymorphs :targets, {:from => ActiveAcl.from_access_classes,
               :through => :"active_acl/target_links", 
               :rename_individual_collections => true}
           end
@@ -53,9 +53,9 @@ module ActiveAcl #:nodoc:
               alias :reload_before_active_acl :reload
               
               # Redefines reload, making shure privilege caches are cleared on reload
-              def reload #:nodoc:
+              def reload(options={}) #:nodoc:
                 active_acl_clear_cache!
-                reload_before_active_acl
+                reload_before_active_acl(options)
               end
             end
           end

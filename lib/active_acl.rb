@@ -22,11 +22,17 @@ require 'active_acl/acts_as_access_group'
 require 'active_acl/load_files_from'
 
 
-# call class so its loaded and registered as access object
-# wrap in rescue block so migrations don't fail
+$:.unshift File.join(File.dirname(__FILE__),'../app/models/')
+
 begin
-  ActiveAcl::ControllerAction
-  ActiveAcl::ControllerGroup
+['privilege','acl_section','privilege','requester_link','target_link',
+'acl_section','requester_group_link','target_group_link','acl',
+'controller_group','controller_action'].each do |model|
+    require "active_acl/#{model}"
+  end
 rescue StandardError => e
-  puts "Error #{e.message} #{e.backtrace.join("\n")}(need migrations?)"
+  puts "[ERROR] ActiveAcl:  #{e.message}. Migrating?"
 end
+
+$:.shift
+     

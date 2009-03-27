@@ -21,9 +21,14 @@ module ActiveAcl
   def self.is_access_object?(klass)
     !!ACCESS_CLASSES[klass.base_class.name]
   end
-  def self.from_classes 
-    ACCESS_CLASSES.keys.collect do |x| 
-      x.split('::').join('/').underscore.pluralize.to_sym
+  def self.from_access_classes
+    ACCESS_CLASSES.keys.collect do |class_name|
+      class_name.underscore.pluralize.to_sym
+    end
+  end
+  def self.from_group_classes
+    GROUP_CLASSES.keys.collect do |class_name|
+      class_name.underscore.pluralize.to_sym
     end
   end
 end

@@ -22,11 +22,9 @@ begin
       s.rubyforge_project = RUBY_FORGE_PROJECT
       s.summary  = "A new Version of ActiveAclPlus is available."
       s.homepage = "http://activeaclplus.rubyforge.org/"
-#      s.extra_rdoc_files = ["README.rdoc","LICENSE","CHANGELOG"]
+      s.extra_rdoc_files = ["README.rdoc","LICENSE","CHANGELOG"]
       s.rdoc_options     = [ "--title", "Active Acl Plus", "--main", "README.rdoc"]
-                                  
-#      s.add_dependency      "rails", ">= 2.1.0"
-                                        
+      s.files = FileList["[A-Z]*.*","{lib,app,db}/**/*"]
    end
    rescue LoadError
    puts "Jeweler not available."

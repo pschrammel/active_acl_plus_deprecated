@@ -4,6 +4,7 @@
 # require is enough to activate the memcache. Before using the memcache, make sure to set MemcacheAdapter.cache.
 # 
 # In environment.rb:
+#   require 'memcache'   
 #   require 'active_acl/cache/memcache_adapter'
 #   ActiveAcl::Cache::MemcacheAdapter.cache = MemCache.new('localhost:11211', :namespace => 'my_namespace')
 # you can also set the time to leave:

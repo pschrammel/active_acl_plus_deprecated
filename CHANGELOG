@@ -1,6 +1,12 @@
 ActiveAclPlus a rails authorization system (one of many)
 
-Version 0.4.3 (wip)
+Version 0.4.5 
+- reload should have options
+
+Version 0.4.4
+- Bumped Version for Github
+
+Version 0.4.3
 - fixed 2d bug
 - renamed grant_permission! to grant_privilege! (whops)
 - fixed some issues with grant_privilege!

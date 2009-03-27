@@ -24,11 +24,11 @@ module ActiveAcl #:nodoc:
           extend SingletonMethods                         
           
           ActiveAcl::Acl.instance_eval do
-            has_many_polymorphs :requester_groups, {:from => ActiveAcl.from_classes, 
+            has_many_polymorphs :requester_groups, {:from => ActiveAcl.from_group_classes,
               :through => :"active_acl/requester_group_links",
               :rename_individual_collections => true}
             
-            has_many_polymorphs :target_groups, {:from => ActiveAcl.from_classes, 
+            has_many_polymorphs :target_groups, {:from => ActiveAcl.from_group_classes,
               :through => :"active_acl/target_group_links",
               :rename_individual_collections => true}
           end
