@@ -2,6 +2,7 @@ ActiveAclPlus a rails authorization system (one of many)
 
 Version 0.4.5 
 - reload should have options
+- fixed polimorphic assocs
 
 Version 0.4.4
 - Bumped Version for Github

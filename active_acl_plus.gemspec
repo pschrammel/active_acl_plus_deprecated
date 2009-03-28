@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{active_acl_plus}
-  s.version = "0.4.4"
+  s.version = "0.4.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Peter Schrammel", "Gregor Melhorn"]
-  s.date = %q{2009-03-23}
+  s.date = %q{2009-03-28}
   s.description = %q{A flexible, fast and easy to use generic access control system.}
   s.email = ["peter.schrammel@gmx.de"]
   s.extra_rdoc_files = ["README.rdoc", "LICENSE", "CHANGELOG"]
