@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-
+# damn github grrrr
 Gem::Specification.new do |s|
   s.name = %q{active_acl_plus}
   s.version = "0.4.5"
